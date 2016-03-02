@@ -71,6 +71,7 @@ var game = (() => {
         
         cube = [];
         tower = new THREE.Object3D();
+        tower.name = "parent";
         //add tower       
         cube.push(new objects.gameObject(new CubeGeometry(10, 10, 10), new THREE.MeshLambertMaterial({color:Math.floor(Math.random()*16777215)}), 0, 10, 0));
         tower.add(cube[cube.length-1]);
@@ -142,14 +143,18 @@ var game = (() => {
     function gameLoop(): void {
         stats.update();
         
-        tower.scale.y = control.scaleY;
-        tower.children[0].rotateY(control.cube * control.rotateY * control.rotate);
-        tower.children[1].rotateY(control.cube1 * control.rotateY * control.rotate);
-        tower.children[2].rotateY(control.cube2 * control.rotateY * control.rotate);
-        tower.children[3].rotateY(control.cube3 * control.rotateY * control.rotate);
-        tower.children[4].rotateY(control.cube4 * control.rotateY * control.rotate);
         
-        if (control.tower)
+        scene.traverse(function(threeObject:THREE.Object3D) {
+        if (threeObject.name == "parent") {
+            threeObject.scale.y = control.scaleY;
+            threeObject.children[0].rotateY(control.cube * control.rotateY * control.rotate);
+            threeObject.children[1].rotateY(control.cube1 * control.rotateY * control.rotate);
+            threeObject.children[2].rotateY(control.cube2 * control.rotateY * control.rotate);
+            threeObject.children[3].rotateY(control.cube3 * control.rotateY * control.rotate);
+            threeObject.children[4].rotateY(control.cube4 * control.rotateY * control.rotate);
+        }
+        
+        if (threeObject.name == "parent" && control.tower)
         {
             for (var j = 0; j < cube.length; j++)
             {
@@ -157,16 +162,22 @@ var game = (() => {
             }
             control.tower = false;
         }
+    });
+        
+        //tower.scale.y = control.scaleY;
+        //tower.children[0].rotateY(control.cube * control.rotateY * control.rotate);
+        //tower.children[1].rotateY(control.cube1 * control.rotateY * control.rotate);
+        //tower.children[2].rotateY(control.cube2 * control.rotateY * control.rotate);
+        //tower.children[3].rotateY(control.cube3 * control.rotateY * control.rotate);
+       // tower.children[4].rotateY(control.cube4 * control.rotateY * control.rotate);
         
         if (control.build)
-        {var tmp = new THREE.Object3D();
-            for (var l = 0; l < cube.length; l++)
-            {
-                
-                tmp.add(cube[l]);
-            }
-            tmp.position.set(control.towerX, 0, control.towerZ);
-            scene.add(tmp);
+        {   
+            var test = tower.clone();
+            test.name = "parent";
+            test.position.set(control.towerX, 0, control.towerZ);
+            scene.add(test);
+            
             control.build = false;
         }
         
